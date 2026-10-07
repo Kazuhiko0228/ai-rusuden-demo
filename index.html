@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI留守電 デモ</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFFFFF; --card:#FFFFFF; --line:#DCE4E2; --text:#14272B; --sub:#55666A;
+  --accent:#0B6E69; --accent-soft:#E6F2F1; --on-accent:#FFFFFF;
+  --amber-bg:#FDEFD0; --amber-fg:#7A4106;
+  --green-bg:#D9F0E4; --green-fg:#14603A;
+  --gray-bg:#E8ECEB;  --gray-fg:#3D4B4E;
+  --row-hover:#F5F8F7;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0F1A1C; --card:#0F1A1C; --line:#26383B; --text:#E3ECEA; --sub:#9AAAA8;
+    --accent:#4FB3AC; --accent-soft:#16302F; --on-accent:#0F1A1C;
+    --amber-bg:#3A2A0E; --amber-fg:#F4C67A;
+    --green-bg:#123224; --green-fg:#8FD6AF;
+    --gray-bg:#232F31;  --gray-fg:#C2CDCB;
+    --row-hover:#152325;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:"Noto Sans JP",system-ui,sans-serif;font-size:15px;line-height:1.7}
+h1,h2,h3{font-family:"Zen Kaku Gothic New","Noto Sans JP",sans-serif;font-weight:700;line-height:1.4;margin:0}
+.num,time,.tnum{font-variant-numeric:tabular-nums}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+section{padding:40px 0;border-top:1px solid var(--line)}
+section:first-of-type{border-top:0}
+.sec-head{margin-bottom:20px}
+.sec-head h2{font-size:22px}
+.sec-head p{margin:6px 0 0;color:var(--sub);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* header */
+header{border-bottom:1px solid var(--line)}
+.hdr{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 16px;flex-wrap:wrap}
+.brand h1{font-size:24px;color:var(--accent)}
+.brand p{margin:2px 0 0;color:var(--sub);font-size:14px}
+.pill{border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:12px;color:var(--sub);white-space:nowrap}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding-top:24px}
+.stat{padding:16px}
+.stat .label{font-size:13px;color:var(--sub)}
+.stat .value{font-size:32px;font-weight:700;font-family:"Zen Kaku Gothic New",sans-serif;font-variant-numeric:tabular-nums;line-height:1.2;margin-top:4px}
+.stat .value small{font-size:14px;font-weight:500;color:var(--sub);margin-left:4px}
+.stat.warn .value{color:var(--amber-fg)}
+.stat.done .value{color:var(--green-fg)}
+@media (max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}.stat .value{font-size:26px}}
+
+/* badges */
+.badge{display:inline-block;font-size:12px;font-weight:500;padding:2px 10px;border-radius:999px;white-space:nowrap;line-height:1.6}
+.b-todo{background:var(--amber-bg);color:var(--amber-fg)}
+.b-done{background:var(--green-bg);color:var(--green-fg)}
+.b-none{background:var(--gray-bg);color:var(--gray-fg)}
+.tag{display:inline-block;font-size:12px;padding:1px 9px;border-radius:999px;border:1px solid var(--line);color:var(--sub);white-space:nowrap}
+.tag.match{border-color:var(--accent);color:var(--accent)}
+
+/* inbox */
+.inbox{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:16px;align-items:start}
+@media (max-width:880px){.inbox{grid-template-columns:minmax(0,1fr)}}
+.list-head{padding:14px 14px 10px;border-bottom:1px solid var(--line)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:4px 12px;font-size:13px;color:var(--sub)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.chip .tnum{margin-left:4px;opacity:.8}
+.calls{list-style:none;margin:0;padding:0}
+.call{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 12px;align-items:center;width:100%;
+  text-align:left;background:transparent;border:0;border-bottom:1px solid var(--line);padding:12px 14px;border-left:3px solid transparent}
+.calls li:last-child .call{border-bottom:0}
+.call:hover{background:var(--row-hover)}
+.call[aria-current="true"]{border-left-color:var(--accent);background:var(--accent-soft)}
+.call time{font-size:14px;color:var(--sub)}
+.call .who{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.call .what{grid-column:2 / 4;font-size:13px;color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.empty{padding:24px 14px;color:var(--sub);font-size:14px}
+
+.detail{padding:20px}
+.d-top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
+.d-top h3{font-size:22px}
+.d-meta{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:6px;font-size:13px;color:var(--sub)}
+.d-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);border-radius:8px;padding:8px 14px;font-size:14px;font-weight:500;white-space:nowrap}
+.btn.ghost{background:transparent;color:var(--accent)}
+.d-block{margin-top:18px}
+.d-block h4{margin:0 0 6px;font-size:13px;color:var(--sub);font-weight:500;letter-spacing:.04em}
+.d-block p{margin:0}
+.todo{margin:0;padding-left:1.2em}
+.transcript{border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.turn{display:grid;grid-template-columns:4.5em minmax(0,1fr);gap:8px;font-size:14px}
+.turn .spk{font-size:12px;color:var(--sub);padding-top:2px}
+.turn.ai .spk{color:var(--accent);font-weight:700}
+
+/* flow */
+.flow-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
+@media (max-width:880px){.flow-grid{grid-template-columns:minmax(0,1fr)}}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:520px){.steps{grid-template-columns:minmax(0,1fr)}}
+.step{padding:16px}
+.step .n{display:inline-flex;width:28px;height:28px;border-radius:50%;border:1px solid var(--accent);color:var(--accent);
+  align-items:center;justify-content:center;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.step h3{font-size:16px;margin-top:10px}
+.step p{margin:4px 0 0;font-size:13px;color:var(--sub)}
+.phone{padding:16px}
+.phone .cap{font-size:13px;color:var(--sub);margin:0 0 10px}
+.notif{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.notif .row1{display:flex;justify-content:space-between;font-size:12px;color:var(--sub)}
+.notif .ttl{font-weight:700;margin-top:4px}
+.notif .body{font-size:13px;margin-top:4px}
+.notif .todo-line{font-size:13px;margin-top:6px;color:var(--amber-fg)}
+
+/* sheet */
+.sheet{width:100%;border-collapse:collapse;font-size:14px}
+.sheet th,.sheet td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+.sheet th{font-weight:500;color:var(--sub);background:var(--row-hover);font-size:13px}
+.sheet td:first-child{white-space:nowrap;font-variant-numeric:tabular-nums}
+.sheet-cap{font-size:13px;color:var(--sub);margin:8px 0 0}
+@media (max-width:640px){
+  .sheet thead{display:none}
+  .sheet,.sheet tbody,.sheet tr,.sheet td{display:block;width:100%}
+  .sheet tr{border:1px solid var(--line);border-radius:8px;margin-bottom:10px;padding:6px 0}
+  .sheet td{border:0;padding:4px 12px;display:grid;grid-template-columns:4.5em minmax(0,1fr);gap:8px}
+  .sheet td::before{content:attr(data-label);color:var(--sub);font-size:12px;padding-top:2px}
+}
+
+/* pricing */
+.prices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:720px){.prices{grid-template-columns:minmax(0,1fr)}}
+.price{padding:20px}
+.price.main{border:2px solid var(--accent)}
+.price .pl{font-size:14px;color:var(--sub)}
+.price .pv{font-size:30px;font-weight:700;font-family:"Zen Kaku Gothic New",sans-serif;font-variant-numeric:tabular-nums;margin-top:6px;line-height:1.3}
+.price .pv small{font-size:14px;color:var(--sub);font-weight:500;margin-left:2px}
+.price ul{margin:12px 0 0;padding-left:1.2em;font-size:13px;color:var(--sub)}
+.trial{margin-top:12px;padding:16px 20px;background:var(--accent-soft);border:1px solid var(--line);border-radius:10px}
+.trial h3{font-size:16px;color:var(--accent)}
+.trial p{margin:4px 0 0;font-size:14px}
+.next{margin-top:12px;padding:16px 20px}
+.next h3{font-size:16px}
+.next ul{margin:8px 0 0;padding-left:1.2em;font-size:14px}
+.next li span{color:var(--sub);font-size:13px}
+
+footer{border-top:1px solid var(--line);padding:24px 0 40px;color:var(--sub);font-size:13px}
+</style>
+</head>
+<body>
+<header>
+  <div class="hdr wrap">
+    <div class="brand">
+      <h1>AI留守電</h1>
+      <p>出られなかった電話をAIが受けて、用件をまとめてお知らせします。</p>
+    </div>
+    <span class="pill">表示はすべてサンプルデータです</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- 2. 数値の帯 -->
+  <div class="stats" aria-label="本日の数値">
+    <div class="stat card"><div class="label">本日の着信</div><div class="value">30<small>件</small></div></div>
+    <div class="stat card"><div class="label">AIが受けた電話</div><div class="value" id="s-ai">9<small>件</small></div></div>
+    <div class="stat card warn"><div class="label">要折り返し</div><div class="value" id="s-todo">0<small>件</small></div></div>
+    <div class="stat card done"><div class="label">折り返し済み</div><div class="value" id="s-done">0<small>件</small></div></div>
+  </div>
+
+  <!-- 3. 受信箱 -->
+  <section id="inbox">
+    <div class="sec-head">
+      <h2>受信箱</h2>
+      <p>AIが受けた電話の一覧です。選ぶと右に内容が出ます。</p>
+    </div>
+    <div class="inbox">
+      <div class="card">
+        <div class="list-head">
+          <div class="chips" role="group" aria-label="絞り込み" id="chips"></div>
+        </div>
+        <ul class="calls" id="calls"></ul>
+      </div>
+      <article class="card detail" id="detail" aria-live="polite"></article>
+    </div>
+  </section>
+
+  <!-- 4. 仕組み -->
+  <section id="flow">
+    <div class="sec-head">
+      <h2>仕組み</h2>
+      <p>今の固定電話はそのまま。出られないときだけAIが受けます。</p>
+    </div>
+    <div class="flow-grid">
+      <ol class="steps">
+        <li class="step card"><span class="n">1</span><h3>不在時に着信</h3><p>一定時間出られなかった電話をAIに転送します。</p></li>
+        <li class="step card"><span class="n">2</span><h3>用件を録音</h3><p>AIが案内を流し、お名前とご用件を録音します。</p></li>
+        <li class="step card"><span class="n">3</span><h3>文字起こしと要約</h3><p>会話を文字にして、要約とToDoを作ります。</p></li>
+        <li class="step card"><span class="n">4</span><h3>記録と通知</h3><p>スプレッドシートに1行追加し、スマホに通知します。</p></li>
+      </ol>
+      <div class="phone card">
+        <p class="cap">通知のイメージ（受信箱で選んだ通話）</p>
+        <div class="notif" id="notif"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. スプレッドシート -->
+  <section id="sheet">
+    <div class="sec-head">
+      <h2>スプレッドシートの記録</h2>
+      <p>1件の電話が1行になります。直近4件の例です。</p>
+    </div>
+    <table class="sheet">
+      <thead><tr><th>日時</th><th>発信元</th><th>要約</th><th>ToDo</th><th>備考</th></tr></thead>
+      <tbody id="sheet-body"></tbody>
+    </table>
+    <p class="sheet-cap">列の並びや項目は導入時に変更できます。</p>
+  </section>
+
+  <!-- 6. 料金 -->
+  <section id="price">
+    <div class="sec-head">
+      <h2>料金</h2>
+      <p>税込・税別の扱いは見積書でご案内します。</p>
+    </div>
+    <div class="prices">
+      <div class="price card">
+        <div class="pl">初期費用</div>
+        <div class="pv" id="p-initial"></div>
+        <ul><li>転送設定とAIの案内文の作成</li><li>スプレッドシートと通知の設定</li><li>顧客リストの取り込み</li></ul>
+      </div>
+      <div class="price card main">
+        <div class="pl">月額</div>
+        <div class="pv" id="p-monthly"></div>
+        <ul><li>AIの応答・文字起こし・要約</li><li>記録と通知</li><li>案内文や項目の調整</li></ul>
+      </div>
+      <div class="price card">
+        <div class="pl">通話料などの実費</div>
+        <div class="pv" id="p-usage"></div>
+        <ul><li>転送にかかる通話料</li><li>電話番号の維持費</li><li>使った分だけ。毎月の明細でお知らせします</li></ul>
+      </div>
+    </div>
+    <div class="trial">
+      <h3>1〜3か月のお試し運用</h3>
+      <p>実際の電話で使ってみて、案内文や記録の項目を調整してから本運用に移れます。</p>
+    </div>
+    <div class="next card">
+      <h3>次の段階で追加できるもの</h3>
+      <ul>
+        <li>AIの聞き返し <span>— 用件があいまいなとき、AIが確認の質問をします</span></li>
+        <li>固定電話とスマホの受け分け <span>— 時間帯などで、スマホで受けるかAIに回すかを切り替えます</span></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">サンプルデータによるイメージです。実際の画面は導入時に調整します。</div>
+</footer>
+
+<script>
+/* ===== 料金：ここに金額（数値）を入れると反映されます。null のままなら「¥ ○○,○○○」 ===== */
+const PRICES = {
+  initial: null,  // 初期費用（例: 50000）
+  monthly: null,  // 月額（例: 15000）
+  usage:   null,  // 実費の目安・月（例: 3000）
+};
+
+const GREETING = "お電話ありがとうございます。ただいま電話に出られません。お名前とご用件をお話しください。内容は記録されます。";
+
+const STATUS = {
+  todo: { label: "要折り返し",   cls: "b-todo" },
+  done: { label: "折り返し済み", cls: "b-done" },
+  none: { label: "対応不要",     cls: "b-none" },
+};
+
+/* source: match=顧客リストと一致 / spoken=お名前は通話の内容から / hidden=非通知
+   すべて架空のデータです */
+const CALLS = [
+  { id: 1, time: "09:12", dur: "0:48", name: "山田 一郎 様", tel: "090-0000-1111", source: "match", status: "todo",
+    subject: "見積もりの依頼",
+    summary: "来月の作業について見積もりがほしい。数量は先週電話で伝えた内容と同じ。",
+    todo: ["見積書を作成して送る", "今日中に一度折り返す"],
+    note: "午後は外出のため、午前中の連絡を希望。",
+    lines: [["caller","山田です。いつもお世話になってます。"],["caller","来月の作業の見積もりをお願いしたくて。数量は先週お電話で話した通りです。"],["caller","午後は出ているので、午前中に折り返しもらえると助かります。"]] },
+  { id: 2, time: "09:40", dur: "0:31", name: "田中 美咲 様", tel: "080-0000-2222", source: "match", status: "done",
+    subject: "予約日時の変更",
+    summary: "10日の予約を12日に変えたい。時間は同じでよい。",
+    todo: ["予約を12日に変更する"],
+    note: "変更後の確認連絡は不要とのこと。",
+    lines: [["caller","田中です。10日に予約している件なんですが、12日に変えてもらえますか。"],["caller","時間は同じで大丈夫です。確認の電話はなくて構いません。"]] },
+  { id: 3, time: "10:05", dur: "0:22", name: "回線の切り替え案内", tel: "03-0000-3333", source: "spoken", status: "none",
+    subject: "営業電話（回線の切り替え）",
+    summary: "電話回線の切り替えの案内。具体的な用件や担当者名はなし。",
+    todo: [],
+    note: "営業の電話と思われます。", // 要確認: 営業電話の自動判定は未検証。現状は要約から人が判断する想定
+    lines: [["caller","お世話になります。電話回線のお得な切り替えのご案内でお電話しました。"],["caller","また改めてご連絡します。"]] },
+  { id: 4, time: "10:48", dur: "1:02", name: "佐藤 健 様", tel: "090-0000-4444", source: "spoken", status: "todo",
+    subject: "初めての問い合わせ",
+    summary: "知人の紹介で連絡。サービスの内容と料金を聞きたい。",
+    todo: ["折り返して内容と料金を説明する", "顧客リストに登録する"],
+    note: "紹介者は鈴木様とのこと。平日18時以降がつながりやすい。",
+    lines: [["caller","はじめまして、佐藤と申します。鈴木さんの紹介でお電話しました。"],["caller","サービスの内容と、だいたいの料金を教えてほしいです。"],["caller","平日なら18時以降が出やすいです。番号はこの番号で大丈夫です。"]] },
+  { id: 5, time: "11:20", dur: "0:09", name: "非通知", tel: "番号非通知", source: "hidden", status: "none",
+    subject: "用件の録音なし",
+    summary: "案内の途中で切れたため、用件は録音されていません。",
+    todo: [],
+    note: "",
+    lines: [["caller","（無言のまま通話終了）"]] },
+  { id: 6, time: "13:05", dur: "0:37", name: "鈴木 花子 様", tel: "070-0000-5555", source: "match", status: "todo",
+    subject: "納品日の確認",
+    summary: "注文した品の納品日を知りたい。木曜までに届くか確認したい。",
+    todo: ["納品日を確認して折り返す"],
+    note: "木曜に間に合わない場合は事前に連絡がほしい。",
+    lines: [["caller","鈴木です。先週お願いした品物、いつ届きますか。"],["caller","木曜までに必要なので、間に合わなそうなら先に教えてください。"]] },
+  { id: 7, time: "14:30", dur: "0:26", name: "広告掲載の案内", tel: "050-0000-6666", source: "spoken", status: "none",
+    subject: "営業電話（広告掲載）",
+    summary: "地域情報サイトへの広告掲載の案内。",
+    todo: [],
+    note: "営業の電話と思われます。", // 要確認: 営業電話の自動判定は未検証
+    lines: [["caller","地域情報サイトの広告掲載についてご案内でお電話しました。"],["caller","資料をお送りしたいので、ご担当の方からご連絡ください。"]] },
+  { id: 8, time: "15:15", dur: "0:41", name: "伊藤 直樹 様", tel: "090-0000-7777", source: "match", status: "done",
+    subject: "請求書の再送",
+    summary: "先月分の請求書が見当たらない。メールで再送してほしい。",
+    todo: ["先月分の請求書をメールで再送する"],
+    note: "送り先はいつものアドレスでよい。",
+    lines: [["caller","伊藤です。先月分の請求書が見つからなくて。"],["caller","すみませんがメールでもう一度送ってもらえますか。いつものアドレスで大丈夫です。"]] },
+  { id: 9, time: "16:02", dur: "0:29", name: "高橋 誠 様", tel: "080-0000-8888", source: "spoken", status: "done",
+    subject: "営業時間の確認",
+    summary: "土曜日に開いているか、何時までかを知りたい。",
+    todo: ["土曜の営業時間を伝える"],
+    note: "",
+    lines: [["caller","高橋と申します。土曜日って開いてますか。何時までか教えてください。"]] },
+];
+
+const SOURCE_TAG = {
+  match:  '<span class="tag match">顧客リストと一致</span>',
+  spoken: '<span class="tag">お名前は通話の内容から</span>',
+  hidden: '<span class="tag">番号非通知</span>',
+};
+
+let filter = "all";
+let selectedId = CALLS[0].id;
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const badge = (st) => `<span class="badge ${STATUS[st].cls}">${STATUS[st].label}</span>`;
+const yen = (v) => (typeof v === "number" ? "¥ " + v.toLocaleString("ja-JP") : "¥ ○○,○○○");
+const today = (() => { const d = new Date(); return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")}`; })();
+
+function renderStats() {
+  const count = (st) => CALLS.filter((c) => c.status === st).length;
+  $("s-todo").innerHTML = `${count("todo")}<small>件</small>`;
+  $("s-done").innerHTML = `${count("done")}<small>件</small>`;
+  $("s-ai").innerHTML = `${CALLS.length}<small>件</small>`;
+}
+
+function renderChips() {
+  const opts = [["all","すべて"],["todo","要折り返し"],["done","折り返し済み"],["none","対応不要"]];
+  $("chips").innerHTML = opts.map(([k, label]) => {
+    const n = k === "all" ? CALLS.length : CALLS.filter((c) => c.status === k).length;
+    return `<button class="chip" data-f="${k}" aria-pressed="${filter === k}">${label}<span class="tnum">${n}</span></button>`;
+  }).join("");
+}
+
+function renderList() {
+  const items = CALLS.filter((c) => filter === "all" || c.status === filter);
+  $("calls").innerHTML = items.length ? items.map((c) => `
+    <li><button class="call" data-id="${c.id}" aria-current="${c.id === selectedId}">
+      <time>${c.time}</time>
+      <span class="who">${esc(c.name)}</span>
+      ${badge(c.status)}
+      <span class="what">${esc(c.subject)}</span>
+    </button></li>`).join("") : `<li class="empty">該当する電話はありません。</li>`;
+}
+
+function renderDetail() {
+  const c = CALLS.find((x) => x.id === selectedId);
+  const action = c.status === "todo"
+    ? `<button class="btn" data-toggle="done">折り返し済みにする</button>`
+    : c.status === "done"
+      ? `<button class="btn ghost" data-toggle="todo">要折り返しに戻す</button>`
+      : `<button class="btn ghost" data-toggle="todo">要折り返しにする</button>`;
+  $("detail").innerHTML = `
+    <div class="d-top">
+      <div>
+        <h3>${esc(c.name)}</h3>
+        <div class="d-meta">
+          <span class="tnum">${esc(c.tel)}</span>
+          <span>着信 <time>${c.time}</time></span>
+          <span>通話 <span class="tnum">${c.dur}</span></span>
+        </div>
+        <div class="d-tags">${badge(c.status)}${SOURCE_TAG[c.source]}</div>
+      </div>
+      ${action}
+    </div>
+    <div class="d-block"><h4>要約</h4><p>${esc(c.summary)}</p></div>
+    <div class="d-block"><h4>ToDo</h4>${c.todo.length ? `<ul class="todo">${c.todo.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : `<p style="color:var(--sub)">なし</p>`}</div>
+    <div class="d-block"><h4>備考</h4><p${c.note ? "" : ' style="color:var(--sub)"'}>${esc(c.note || "なし")}</p></div>
+    <div class="d-block"><h4>全文書き起こし</h4>
+      <div class="transcript">
+        <div class="turn ai"><span class="spk">AI</span><span>${GREETING}</span></div>
+        ${c.lines.map(([who, text]) => `<div class="turn"><span class="spk">発信者</span><span>${esc(text)}</span></div>`).join("")}
+      </div>
+    </div>`;
+}
+
+function renderNotif() {
+  const c = CALLS.find((x) => x.id === selectedId);
+  $("notif").innerHTML = `
+    <div class="row1"><span>AI留守電</span><time>${c.time}</time></div>
+    <div class="ttl">${esc(c.name)}から着信</div>
+    <div class="body">${esc(c.summary)}</div>
+    ${c.todo.length ? `<div class="todo-line">ToDo：${esc(c.todo[0])}${c.todo.length > 1 ? ` ほか${c.todo.length - 1}件` : ""}</div>` : ""}`;
+}
+
+function renderSheet() {
+  const recent = [...CALLS].sort((a, b) => b.time.localeCompare(a.time)).slice(0, 4);
+  $("sheet-body").innerHTML = recent.map((c) => `
+    <tr>
+      <td data-label="日時">${today} ${c.time}</td>
+      <td data-label="発信元">${esc(c.name)}</td>
+      <td data-label="要約">${esc(c.summary)}</td>
+      <td data-label="ToDo">${esc(c.todo.join(" / ") || "—")}</td>
+      <td data-label="備考">${esc(c.note || "—")}</td>
+    </tr>`).join("");
+}
+
+function renderPrices() {
+  $("p-initial").textContent = yen(PRICES.initial);
+  $("p-monthly").innerHTML = `${esc(yen(PRICES.monthly))}<small>/月</small>`;
+  $("p-usage").innerHTML = `${esc(yen(PRICES.usage))}<small>/月の目安</small>`;
+}
+
+function renderAll() { renderStats(); renderChips(); renderList(); renderDetail(); renderNotif(); }
+
+$("chips").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-f]"); if (!b) return;
+  filter = b.dataset.f;
+  renderChips(); renderList();
+});
+$("calls").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-id]"); if (!b) return;
+  selectedId = Number(b.dataset.id);
+  renderList(); renderDetail(); renderNotif();
+  if (window.matchMedia("(max-width:880px)").matches) $("detail").scrollIntoView({ behavior: "smooth", block: "start" });
+});
+$("detail").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-toggle]"); if (!b) return;
+  CALLS.find((x) => x.id === selectedId).status = b.dataset.toggle;
+  renderAll();
+});
+
+renderAll(); renderSheet(); renderPrices();
+</script>
+</body>
+</html>
