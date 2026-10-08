@@ -67,7 +67,6 @@ header{border-bottom:1px solid var(--line)}
 .mode-flow li b{display:block;font-size:14px;line-height:1.4}
 .mode-flow li span{color:var(--sub);font-size:12px;line-height:1.5;display:block;margin-top:2px}
 .mode-flow li.off{opacity:.38}
-.mode-flow .line-mark{display:inline-block;font-size:11px;font-weight:700;color:#FFFFFF;background:#06C755;border-radius:4px;padding:0 5px;margin-right:4px;vertical-align:1px}
 
 /* stats */
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding-top:24px}
@@ -134,21 +133,18 @@ header{border-bottom:1px solid var(--line)}
 .step p{margin:4px 0 0;font-size:13px;color:var(--sub)}
 .phone{padding:16px}
 .phone .cap{font-size:13px;color:var(--sub);margin:0 0 10px}
-.line-frame{border:1px solid var(--line);border-radius:16px;overflow:hidden}
-.line-head{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:13px;font-weight:700}
-.line-badge{font-size:11px;font-weight:700;color:#FFFFFF;background:#06C755;border-radius:4px;padding:1px 6px}
-.line-head .acct{color:var(--sub);font-weight:400;font-size:12px}
-.line-body{background:#EEF2F3;padding:14px 12px 16px}
-.line-msg{display:grid;grid-template-columns:32px minmax(0,1fr);gap:8px;align-items:start}
-.line-av{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#FFFFFF;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
-.line-name{font-size:11px;color:var(--sub);margin-bottom:3px}
-.line-row{display:flex;align-items:flex-end;gap:6px}
-.line-bubble{background:#FFFFFF;border-radius:4px 14px 14px 14px;padding:10px 12px;font-size:13px;line-height:1.6;min-width:0}
-.line-bubble .ttl{font-weight:700}
-.line-bubble .todo-line{margin-top:6px;color:var(--amber-fg)}
-.line-bubble .open{display:block;margin-top:8px;padding-top:8px;border-top:1px solid var(--line);color:var(--accent);font-weight:700;text-align:center;font-size:12px}
-.line-time{font-size:10px;color:var(--sub);white-space:nowrap}
-.line-note{font-size:12px;color:var(--sub);margin:10px 0 0}
+.mail{border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:13px}
+.mail-head{padding:12px 14px;border-bottom:1px solid var(--line);display:grid;gap:2px}
+.mail-head .row{display:flex;justify-content:space-between;gap:8px;color:var(--sub);font-size:12px}
+.mail-head .from{color:var(--text);font-weight:700}
+.mail-head .subj{font-weight:700;font-size:14px;line-height:1.5;margin-top:4px}
+.mail-head .subj .pfx{color:var(--amber-fg)}
+.mail-body{padding:12px 14px 14px;line-height:1.7}
+.mail-body dt{color:var(--sub);font-size:12px;margin-top:8px}
+.mail-body dt:first-child{margin-top:0}
+.mail-body dd{margin:0}
+.mail-body .open{display:block;margin-top:12px;padding:8px;border:1px solid var(--accent);border-radius:8px;color:var(--accent);font-weight:700;text-align:center;font-size:12px}
+.mail-note{font-size:12px;color:var(--sub);margin:10px 0 0}
 
 /* sheet */
 .sheet{width:100%;border-collapse:collapse;font-size:14px}
@@ -173,7 +169,7 @@ footer{border-top:1px solid var(--line);padding:24px 0 40px;color:var(--sub);fon
   <div class="hdr wrap">
     <div class="brand">
       <h1>AI留守電</h1>
-      <p>出られなかった電話をAIが受けて、用件を確認し、公式LINEでお知らせします。</p>
+      <p>出られなかった電話をAIが受けて、用件を確認し、メールでお知らせします。</p>
     </div>
     <span class="pill">表示はすべてサンプルデータです</span>
   </div>
@@ -231,15 +227,12 @@ footer{border-top:1px solid var(--line);padding:24px 0 40px;color:var(--sub);fon
         <li class="step card"><span class="n">1</span><h3>不在時に着信</h3><p>一定時間出られなかった電話をAIに転送します。</p></li>
         <li class="step card"><span class="n">2</span><h3>用件を聞いて確認</h3><p>AIがご用件を伺い、「〇〇のご用件でお間違いないでしょうか」と確認します。違えば聞き直します。</p></li>
         <li class="step card"><span class="n">3</span><h3>要約とToDo</h3><p>確認が取れた内容をもとに、要約とToDoを作ります。</p></li>
-        <li class="step card"><span class="n">4</span><h3>記録と通知</h3><p>公式LINEでお知らせします。内容はスプレッドシートとこのダッシュボードでも確認できます。</p></li>
+        <li class="step card"><span class="n">4</span><h3>記録と通知</h3><p>メールでお知らせします。内容はスプレッドシートとこのダッシュボードでも確認できます。</p></li>
       </ol>
       <div class="phone card">
-        <p class="cap">公式LINEに届く通知（受信箱で選んだ通話）</p>
-        <div class="line-frame">
-          <div class="line-head"><span class="line-badge">LINE</span>AI留守電<span class="acct">公式アカウント</span></div>
-          <div class="line-body" id="notif"></div>
-        </div>
-        <p class="line-note">通知先は担当者ごとに追加できます。</p>
+        <p class="cap">届くメール（受信箱で選んだ通話）</p>
+        <div class="mail" id="notif"></div>
+        <p class="mail-note">宛先は複数の担当者に設定できます。スマホのメールアプリに通知が届きます。</p>
       </div>
     </div>
   </section>
@@ -406,7 +399,7 @@ function renderDetail() {
           <span class="tnum">${esc(c.tel)}</span>
           <span>着信 <time>${c.time}</time></span>
           <span>通話 <span class="tnum">${c.dur}</span></span>
-          <span>LINE通知 済</span>
+          <span>メール通知 済</span>
         </div>
         <div class="d-tags">${badge(c.status)}${SOURCE_TAG[c.source]}${CHECK_TAG[c.check]}</div>
       </div>
@@ -426,22 +419,19 @@ function renderDetail() {
 
 function renderNotif() {
   const c = CALLS.find((x) => x.id === selectedId);
+  const pfx = c.status === "todo" ? "【要折り返し】" : "【着信】";
   $("notif").innerHTML = `
-    <div class="line-msg">
-      <div class="line-av">AI</div>
-      <div>
-        <div class="line-name">AI留守電</div>
-        <div class="line-row">
-          <div class="line-bubble">
-            <div class="ttl">${esc(c.name)}から着信（${c.time}）</div>
-            <div>${esc(c.summary)}</div>
-            ${c.todo.length ? `<div class="todo-line">ToDo：${esc(c.todo[0])}${c.todo.length > 1 ? ` ほか${c.todo.length - 1}件` : ""}</div>` : ""}
-            <span class="open">ダッシュボードで詳しく見る</span>
-          </div>
-          <time class="line-time">${c.time}</time>
-        </div>
-      </div>
-    </div>`;
+    <div class="mail-head">
+      <div class="row"><span class="from">AI留守電</span><time>今日 ${c.time}</time></div>
+      <div class="row"><span>宛先：担当者</span></div>
+      <div class="subj"><span class="pfx">${pfx}</span>${esc(c.name)}から着信（${c.time}）</div>
+    </div>
+    <dl class="mail-body">
+      <dt>要約</dt><dd>${esc(c.summary)}</dd>
+      <dt>ToDo</dt><dd>${c.todo.length ? c.todo.map(esc).join("<br>") : "なし"}</dd>
+      <dt>番号</dt><dd class="tnum">${esc(c.tel)}</dd>
+      <span class="open">ダッシュボードで詳しく見る</span>
+    </dl>`;
 }
 
 function renderMode() {
@@ -450,11 +440,11 @@ function renderMode() {
   $("ai-switch").setAttribute("aria-checked", String(on));
   $("mode-title").textContent = on ? "AIが電話を受けています" : "AIはお休み中です";
   $("mode-desc").textContent = on
-    ? "出られなかった電話は、AIが用件を伺って確認し、公式LINEでお知らせします。"
+    ? "出られなかった電話は、AIが用件を伺って確認し、メールでお知らせします。"
     : "電話はいつもどおり鳴ります。出られなかった電話もAIは受けません。";
   const steps = on
-    ? [["電話が鳴る", "いつもの固定電話", true], ["出られない", "一定時間で転送", true], ["AIが用件を確認", "「〇〇でお間違いないですか」", true], ['<i class="line-mark">LINE</i>通知', "内容はスプレッドシートとダッシュボードでも確認できます", true]]
-    : [["電話が鳴る", "いつもの固定電話", true], ["出られない", "そのまま鳴り続けます", true], ["AIが用件を確認", "オフの間は受けません", false], ['<i class="line-mark">LINE</i>通知', "通知・記録もなし", false]];
+    ? [["電話が鳴る", "いつもの固定電話", true], ["出られない", "一定時間で転送", true], ["AIが用件を確認", "「〇〇でお間違いないですか」", true], ["メールで通知", "内容はスプレッドシートとダッシュボードでも確認できます", true]]
+    : [["電話が鳴る", "いつもの固定電話", true], ["出られない", "そのまま鳴り続けます", true], ["AIが用件を確認", "オフの間は受けません", false], ["メールで通知", "通知・記録もなし", false]];
   $("mode-flow").innerHTML = steps.map(([t, d, act]) => `<li class="${act ? "" : "off"}"><b>${t}</b><span>${d}</span></li>`).join("");
 }
 
