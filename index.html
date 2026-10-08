@@ -39,17 +39,32 @@ header{border-bottom:1px solid var(--line)}
 .hdr{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 16px;flex-wrap:wrap}
 .brand h1{font-size:24px;color:var(--accent)}
 .brand p{margin:2px 0 0;color:var(--sub);font-size:14px}
-.hdr-right{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.ai-switch{display:flex;align-items:center;gap:10px}
-.switch{position:relative;width:44px;height:24px;border-radius:999px;border:1px solid var(--line);background:var(--gray-bg);padding:0;flex:none;transition:background .15s}
-.switch .knob{position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#FFFFFF;border:1px solid var(--line);transition:left .15s}
-.switch[aria-checked="true"]{background:var(--accent);border-color:var(--accent)}
-.switch[aria-checked="true"] .knob{left:22px;border-color:var(--accent)}
-.sw-label{font-size:14px;font-weight:700}
-.sw-label span{color:var(--accent)}
-.switch[aria-checked="false"] + div .sw-label span{color:var(--sub)}
-.sw-note{font-size:12px;color:var(--sub)}
 .pill{border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:12px;color:var(--sub);white-space:nowrap}
+
+/* mode (AI応答 ON/OFF) */
+.mode{margin-top:24px;padding:24px;border:2px solid var(--accent);background:var(--accent-soft);border-radius:14px;
+  display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:24px;align-items:center;transition:background .2s,border-color .2s}
+.mode[data-on="false"]{border-color:var(--line);background:var(--gray-bg)}
+@media (max-width:880px){.mode{grid-template-columns:minmax(0,1fr);padding:20px}}
+.mode-main{display:flex;gap:18px;align-items:center}
+.mode-kicker{font-size:13px;color:var(--sub);font-weight:500;letter-spacing:.06em}
+.mode-title{font-family:"Zen Kaku Gothic New",sans-serif;font-size:24px;font-weight:700;line-height:1.35;margin-top:2px}
+.mode[data-on="true"] .mode-title{color:var(--accent)}
+.mode-desc{font-size:14px;color:var(--sub);margin-top:4px}
+.bigswitch{position:relative;flex:none;width:112px;height:56px;border-radius:999px;border:0;padding:0;background:#9AA7A5;transition:background .2s}
+.bigswitch[aria-checked="true"]{background:var(--accent)}
+.bigswitch .knob{position:absolute;top:5px;left:5px;width:46px;height:46px;border-radius:50%;background:#FFFFFF;transition:left .2s}
+.bigswitch[aria-checked="true"] .knob{left:61px}
+.bigswitch .bs{position:absolute;top:50%;transform:translateY(-50%);font-size:15px;font-weight:700;color:#FFFFFF;letter-spacing:.04em}
+.bigswitch .bs-on{left:16px}.bigswitch .bs-off{right:14px}
+.bigswitch[aria-checked="true"] .bs-off,.bigswitch[aria-checked="false"] .bs-on{display:none}
+.mode-flow{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;counter-reset:f}
+@media (max-width:560px){.mode-flow{grid-template-columns:minmax(0,1fr)}}
+.mode-flow li{position:relative;background:#FFFFFF;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;transition:opacity .2s}
+.mode-flow li b{display:block;font-size:14px;line-height:1.4}
+.mode-flow li span{color:var(--sub);font-size:12px;line-height:1.5;display:block;margin-top:2px}
+.mode-flow li.off{opacity:.38}
+.mode-flow .line-mark{display:inline-block;font-size:11px;font-weight:700;color:#FFFFFF;background:#06C755;border-radius:4px;padding:0 5px;margin-right:4px;vertical-align:1px}
 
 /* stats */
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding-top:24px}
@@ -116,11 +131,21 @@ header{border-bottom:1px solid var(--line)}
 .step p{margin:4px 0 0;font-size:13px;color:var(--sub)}
 .phone{padding:16px}
 .phone .cap{font-size:13px;color:var(--sub);margin:0 0 10px}
-.notif{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
-.notif .row1{display:flex;justify-content:space-between;font-size:12px;color:var(--sub)}
-.notif .ttl{font-weight:700;margin-top:4px}
-.notif .body{font-size:13px;margin-top:4px}
-.notif .todo-line{font-size:13px;margin-top:6px;color:var(--amber-fg)}
+.line-frame{border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.line-head{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:13px;font-weight:700}
+.line-badge{font-size:11px;font-weight:700;color:#FFFFFF;background:#06C755;border-radius:4px;padding:1px 6px}
+.line-head .acct{color:var(--sub);font-weight:400;font-size:12px}
+.line-body{background:#EEF2F3;padding:14px 12px 16px}
+.line-msg{display:grid;grid-template-columns:32px minmax(0,1fr);gap:8px;align-items:start}
+.line-av{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#FFFFFF;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.line-name{font-size:11px;color:var(--sub);margin-bottom:3px}
+.line-row{display:flex;align-items:flex-end;gap:6px}
+.line-bubble{background:#FFFFFF;border-radius:4px 14px 14px 14px;padding:10px 12px;font-size:13px;line-height:1.6;min-width:0}
+.line-bubble .ttl{font-weight:700}
+.line-bubble .todo-line{margin-top:6px;color:var(--amber-fg)}
+.line-bubble .open{display:block;margin-top:8px;padding-top:8px;border-top:1px solid var(--line);color:var(--accent);font-weight:700;text-align:center;font-size:12px}
+.line-time{font-size:10px;color:var(--sub);white-space:nowrap}
+.line-note{font-size:12px;color:var(--sub);margin:10px 0 0}
 
 /* sheet */
 .sheet{width:100%;border-collapse:collapse;font-size:14px}
@@ -145,23 +170,28 @@ footer{border-top:1px solid var(--line);padding:24px 0 40px;color:var(--sub);fon
   <div class="hdr wrap">
     <div class="brand">
       <h1>AI留守電</h1>
-      <p>出られなかった電話をAIが受けて、用件を確認してお知らせします。</p>
+      <p>出られなかった電話をAIが受けて、用件を確認し、公式LINEでお知らせします。</p>
     </div>
-    <div class="hdr-right">
-      <!-- デモ表示のみ。実際の回線の転送設定とは連動していません -->
-      <div class="ai-switch">
-        <button type="button" class="switch" id="ai-switch" role="switch" aria-checked="true" aria-labelledby="ai-switch-label"><span class="knob"></span></button>
-        <div>
-          <div class="sw-label" id="ai-switch-label">AI応答 <span id="ai-state">オン</span></div>
-          <div class="sw-note" id="ai-note">出られない電話はAIが受けます</div>
-        </div>
-      </div>
-      <span class="pill">表示はすべてサンプルデータです</span>
-    </div>
+    <span class="pill">表示はすべてサンプルデータです</span>
   </div>
 </header>
 
 <main class="wrap">
+  <!-- AI応答 ON/OFF（デモ表示のみ。実際の回線の転送設定とは連動していません） -->
+  <div class="mode" id="mode" data-on="true">
+    <div class="mode-main">
+      <button type="button" class="bigswitch" id="ai-switch" role="switch" aria-checked="true" aria-label="AI応答">
+        <span class="bs bs-on">ON</span><span class="bs bs-off">OFF</span><span class="knob"></span>
+      </button>
+      <div>
+        <div class="mode-kicker">AI応答</div>
+        <div class="mode-title" id="mode-title"></div>
+        <div class="mode-desc" id="mode-desc"></div>
+      </div>
+    </div>
+    <ol class="mode-flow" id="mode-flow"></ol>
+  </div>
+
   <!-- 2. 数値の帯 -->
   <div class="stats" aria-label="本日の数値">
     <div class="stat card"><div class="label">本日の着信</div><div class="value">30<small>件</small></div></div>
@@ -198,11 +228,15 @@ footer{border-top:1px solid var(--line);padding:24px 0 40px;color:var(--sub);fon
         <li class="step card"><span class="n">1</span><h3>不在時に着信</h3><p>一定時間出られなかった電話をAIに転送します。</p></li>
         <li class="step card"><span class="n">2</span><h3>用件を聞いて確認</h3><p>AIがご用件を伺い、「〇〇のご用件でお間違いないでしょうか」と確認します。違えば聞き直します。</p></li>
         <li class="step card"><span class="n">3</span><h3>要約とToDo</h3><p>確認が取れた内容をもとに、要約とToDoを作ります。</p></li>
-        <li class="step card"><span class="n">4</span><h3>記録と通知</h3><p>スプレッドシートに1行追加し、スマホに通知します。</p></li>
+        <li class="step card"><span class="n">4</span><h3>記録と通知</h3><p>スプレッドシートに1行追加し、公式LINEでお知らせします。</p></li>
       </ol>
       <div class="phone card">
-        <p class="cap">通知のイメージ（受信箱で選んだ通話）</p>
-        <div class="notif" id="notif"></div>
+        <p class="cap">公式LINEに届く通知（受信箱で選んだ通話）</p>
+        <div class="line-frame">
+          <div class="line-head"><span class="line-badge">LINE</span>AI留守電<span class="acct">公式アカウント</span></div>
+          <div class="line-body" id="notif"></div>
+        </div>
+        <p class="line-note">通知先は担当者ごとに追加できます。</p>
       </div>
     </div>
   </section>
@@ -320,6 +354,7 @@ const SOURCE_TAG = {
 };
 
 let filter = "all";
+let aiOn = true;
 let selectedId = CALLS[0].id;
 
 const $ = (id) => document.getElementById(id);
@@ -368,6 +403,7 @@ function renderDetail() {
           <span class="tnum">${esc(c.tel)}</span>
           <span>着信 <time>${c.time}</time></span>
           <span>通話 <span class="tnum">${c.dur}</span></span>
+          <span>LINE通知 済</span>
         </div>
         <div class="d-tags">${badge(c.status)}${SOURCE_TAG[c.source]}${CHECK_TAG[c.check]}</div>
       </div>
@@ -388,10 +424,35 @@ function renderDetail() {
 function renderNotif() {
   const c = CALLS.find((x) => x.id === selectedId);
   $("notif").innerHTML = `
-    <div class="row1"><span>AI留守電</span><time>${c.time}</time></div>
-    <div class="ttl">${esc(c.name)}から着信</div>
-    <div class="body">${esc(c.summary)}</div>
-    ${c.todo.length ? `<div class="todo-line">ToDo：${esc(c.todo[0])}${c.todo.length > 1 ? ` ほか${c.todo.length - 1}件` : ""}</div>` : ""}`;
+    <div class="line-msg">
+      <div class="line-av">AI</div>
+      <div>
+        <div class="line-name">AI留守電</div>
+        <div class="line-row">
+          <div class="line-bubble">
+            <div class="ttl">${esc(c.name)}から着信（${c.time}）</div>
+            <div>${esc(c.summary)}</div>
+            ${c.todo.length ? `<div class="todo-line">ToDo：${esc(c.todo[0])}${c.todo.length > 1 ? ` ほか${c.todo.length - 1}件` : ""}</div>` : ""}
+            <span class="open">ダッシュボードで詳しく見る</span>
+          </div>
+          <time class="line-time">${c.time}</time>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderMode() {
+  const on = aiOn;
+  $("mode").dataset.on = String(on);
+  $("ai-switch").setAttribute("aria-checked", String(on));
+  $("mode-title").textContent = on ? "AIが電話を受けています" : "AIはお休み中です";
+  $("mode-desc").textContent = on
+    ? "出られなかった電話は、AIが用件を伺って確認し、公式LINEでお知らせします。"
+    : "電話はいつもどおり鳴ります。出られなかった電話もAIは受けません。";
+  const steps = on
+    ? [["電話が鳴る", "いつもの固定電話", true], ["出られない", "一定時間で転送", true], ["AIが用件を確認", "「〇〇でお間違いないですか」", true], ['<i class="line-mark">LINE</i>通知', "記録はスプレッドシートへ", true]]
+    : [["電話が鳴る", "いつもの固定電話", true], ["出られない", "そのまま鳴り続けます", true], ["AIが用件を確認", "オフの間は受けません", false], ['<i class="line-mark">LINE</i>通知', "通知・記録もなし", false]];
+  $("mode-flow").innerHTML = steps.map(([t, d, act]) => `<li class="${act ? "" : "off"}"><b>${t}</b><span>${d}</span></li>`).join("");
 }
 
 function renderSheet() {
@@ -425,14 +486,10 @@ $("detail").addEventListener("click", (e) => {
   renderAll();
 });
 
-$("ai-switch").addEventListener("click", (e) => {
-  const on = e.currentTarget.getAttribute("aria-checked") !== "true";
-  e.currentTarget.setAttribute("aria-checked", String(on));
-  $("ai-state").textContent = on ? "オン" : "オフ";
-  $("ai-note").textContent = on ? "出られない電話はAIが受けます" : "AIは受けません。電話は通常どおり鳴ります";
-});
 
-renderAll(); renderSheet();
+$("ai-switch").addEventListener("click", () => { aiOn = !aiOn; renderMode(); });
+
+renderMode(); renderAll(); renderSheet();
 </script>
 </body>
 </html>
