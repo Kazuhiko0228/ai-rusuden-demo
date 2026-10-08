@@ -231,7 +231,7 @@ footer{border-top:1px solid var(--line);padding:24px 0 40px;color:var(--sub);fon
         <li class="step card"><span class="n">1</span><h3>不在時に着信</h3><p>一定時間出られなかった電話をAIに転送します。</p></li>
         <li class="step card"><span class="n">2</span><h3>用件を聞いて確認</h3><p>AIがご用件を伺い、「〇〇のご用件でお間違いないでしょうか」と確認します。違えば聞き直します。</p></li>
         <li class="step card"><span class="n">3</span><h3>要約とToDo</h3><p>確認が取れた内容をもとに、要約とToDoを作ります。</p></li>
-        <li class="step card"><span class="n">4</span><h3>記録と通知</h3><p>スプレッドシートに1行追加し、公式LINEでお知らせします。</p></li>
+        <li class="step card"><span class="n">4</span><h3>記録と通知</h3><p>公式LINEでお知らせします。内容はスプレッドシートとこのダッシュボードでも確認できます。</p></li>
       </ol>
       <div class="phone card">
         <p class="cap">公式LINEに届く通知（受信箱で選んだ通話）</p>
@@ -453,7 +453,7 @@ function renderMode() {
     ? "出られなかった電話は、AIが用件を伺って確認し、公式LINEでお知らせします。"
     : "電話はいつもどおり鳴ります。出られなかった電話もAIは受けません。";
   const steps = on
-    ? [["電話が鳴る", "いつもの固定電話", true], ["出られない", "一定時間で転送", true], ["AIが用件を確認", "「〇〇でお間違いないですか」", true], ['<i class="line-mark">LINE</i>通知', "記録はスプレッドシートへ", true]]
+    ? [["電話が鳴る", "いつもの固定電話", true], ["出られない", "一定時間で転送", true], ["AIが用件を確認", "「〇〇でお間違いないですか」", true], ['<i class="line-mark">LINE</i>通知', "内容はスプレッドシートとダッシュボードでも確認できます", true]]
     : [["電話が鳴る", "いつもの固定電話", true], ["出られない", "そのまま鳴り続けます", true], ["AIが用件を確認", "オフの間は受けません", false], ['<i class="line-mark">LINE</i>通知', "通知・記録もなし", false]];
   $("mode-flow").innerHTML = steps.map(([t, d, act]) => `<li class="${act ? "" : "off"}"><b>${t}</b><span>${d}</span></li>`).join("");
 }
